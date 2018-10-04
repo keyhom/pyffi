@@ -107,6 +107,7 @@
         <option value="0xCCCC0013" name="SourceInfo">Describes the source from which the cgf was exported: source max file, machine and user.</option>
         <!-- the following chunk types are crysis exclusive -->
         <option value="0xCCCC0014" name="MtlName">Provides material name (as used in the material xml file).</option>
+        <option value="0xCCCC0014" name="Anim" />
         <option value="0xCCCC0015" name="ExportFlags">Describes export information.</option>
         <option value="0xCCCC0016" name="DataStream">A data stream.</option>
         <option value="0xCCCC0017" name="MeshSubsets">Describes an array of mesh subsets.</option>
@@ -346,8 +347,8 @@
     <struct name="Key">
         <add name="Time" type="int">Time in ticks.</add>
         <add name="Abs Pos" type="Vector3">Absolute position.</add>
-        <add name="Rel Pos" type="Vector3">Relative position.</add>
-        <add name="Rel Quat" type="Quat" cond="ARG == 1">Relative Quaternion.</add>
+        <add name="Rel Pos" type="Vector3" cond="ARG != 0">Relative position.</add>
+        <add name="Rel Quat" type="Quat" cond="ARG &lt;= 1">Relative Quaternion.</add>
         <add name="Unknown 1" type="Vector3" cond="ARG == 6">Unknown.</add>
         <add name="Unknown 1" type="Vector3" cond="ARG == 10">Unknown.</add>
         <add name="Unknown 2" type="float" arr1="2" cond="ARG == 9">Unknown.</add>
@@ -632,6 +633,15 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <!-- todo: decode -->
     </struct>
 
+    <struct name="AnimChunk" inherit="Chunk">
+        <version num="744">Aion</version>
+        <add name="Key Nums" type="uint" />
+        <add name="Ctrl Id" type="uint" />
+        <add name="Parent Id" type="int" />
+        <add name="InitialPos" type="Vector3" />
+        <add name="Unknown" type="int" />
+    </struct>
+
     <struct name="BoneAnimChunk" inherit="Chunk">
         <version num="290">Far Cry, Crysis, Aion</version>
         <add name="Num Bones" type="uint" />
@@ -748,12 +758,12 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <struct name="ControllerChunk" inherit="Chunk">
         <version num="826">Far Cry, Crysis, Aion</version>
         <version num="827">Far Cry, Crysis</version>
-        <version num="829">Crysis</version>
+        <version num="829">Aion, Crysis</version>
         <add name="Type" type="CtrlType" ver2="826" />
-        <add name="Num Keys" type="uint" ver2="827" />
+        <add name="Num Keys" type="uint" ver1="827" />
         <add name="Flags" type="CtrlFlags" ver2="826" />
-        <add name="Ctrl Id" type="uint" ver2="827">Unique id based on CRC32 of bone name</add>
-        <add name="Keys" type="Key" arr1="Num Keys" arg="Type" ver2="827" />
+        <add name="Ctrl Id" type="uint" ver1="827">Unique id based on CRC32 of bone name</add>
+        <add name="Keys" type="Key" arr1="Num Keys" arg="Type" ver1="827"/>
     </struct>
 
     <struct name="TimingChunk" inherit="Chunk">
@@ -801,18 +811,18 @@ In Python this can be calculated using zlib.crc32(name)</add>
     <struct name="MtlNameChunk" inherit="AbstractMtlChunk">
         <version num="744">Aion</version>
         <version num="800">Crysis</version>
-        <add name="Flags 1" type="MtlNameFlags" />
-        <add name="Flags 2" type="uint" />
-        <add name="Name" type="String128">Material/shader name.</add>
-        <add name="Physics Type" type="MtlNamePhysicsType" />
-        <add name="Num Children" type="uint">Maximum is 66.</add>
-        <add name="Children" type="Ref" template="MtlNameChunk" arr1="Num Children" />
+        <add name="Flags 1" type="MtlNameFlags" ver1="800" />
+        <add name="Flags 2" type="uint"  ver1="800"/>
+        <add name="Name" type="String128" ver1="800">Material/shader name.</add>
+        <add name="Physics Type" type="MtlNamePhysicsType"  ver1="800"/>
+        <add name="Num Children" type="uint" ver1="800">Maximum is 66.</add>
+        <add name="Children" type="Ref" template="MtlNameChunk" arr1="Num Children" ver1="800" />
         <!-- should not have more than 32 materials, but some files have, for instance
         Objects/Vehicles/KuanTi/kuanti_details1_lod1.cgf -->
-        <add name="Padding" type="uint" arr1="32 - Num Children" cond="Num Children &lt;= 32" />
-        <add name="Advanced Data" type="uint" cond="Num Children &lt;= 32" />
-        <add name="Sh Opacity" type="float" cond="Num Children &lt;= 33" />
-        <add name="Reserved 2" type="int" arr1="32" />
+        <add name="Padding" type="uint" arr1="32 - Num Children" cond="Num Children &lt;= 32" ver1="800" />
+        <add name="Advanced Data" type="uint" cond="Num Children &lt;= 32"  ver1="800"/>
+        <add name="Sh Opacity" type="float" cond="Num Children &lt;= 33"  ver1="800"/>
+        <add name="Reserved 2" type="int" arr1="32"  ver1="800"/>
     </struct>
 
     <struct name="ExportFlagsChunk" inherit="Chunk">

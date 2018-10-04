@@ -129,8 +129,8 @@ class DetailModel(QtCore.QAbstractItemModel):
                     return "%i (%s)" % (blocknum, display.name)
             elif isinstance(display, str):
                 # regular string
-                if len(display) > 32:
-                    display = display[:32] + "..."
+                #  if len(display) > 32:
+                    #  display = display[:32] + "..."
                 return display.replace("\n", " ").replace("\r", " ")
             else:
                 raise TypeError("%s: do not know how to display %s"
